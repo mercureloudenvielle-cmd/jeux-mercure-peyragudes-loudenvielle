@@ -17,7 +17,6 @@ const jeuxDetailles = [
       "Quand il ne vous reste qu'une carte, criez « UNO ! »",
       "Oublié de le dire ? Piochez 2 cartes en punition !",
     ],
-    video: "https://www.youtube.com/embed/4lmXNbBzfw4",
     conseil: "Gardez vos cartes +4 pour les moments critiques !",
   },
   {
@@ -34,7 +33,6 @@ const jeuxDetailles = [
       "Plusieurs variantes de jeu possibles selon les règles choisies",
       "La partie se termine quand la pioche est vide",
     ],
-    video: "https://www.youtube.com/embed/nGD_LKgJ5IM",
     conseil: "Entraînez votre œil, les symboles aiment se cacher !",
   },
   {
@@ -51,7 +49,6 @@ const jeuxDetailles = [
       "Alignez 4 jetons en ligne, colonne ou diagonale pour gagner",
       "Si la grille est pleine sans alignement, c'est match nul !",
     ],
-    video: "https://www.youtube.com/embed/utXzIFEVPjA",
     conseil: "Contrôlez le centre de la grille, c'est la clé !",
   },
   {
@@ -68,7 +65,6 @@ const jeuxDetailles = [
       "Attention aux cartes piège qui changent les règles !",
       "Le premier à se débarrasser de toutes ses cartes gagne",
     ],
-    video: "https://www.youtube.com/embed/nGcN2OrEOl4",
     conseil: "Restez concentré, les erreurs coûtent cher !",
   },
   {
@@ -85,7 +81,6 @@ const jeuxDetailles = [
       "3 cartes identiques en colonne ? Elles disparaissent !",
       "Le premier à tout révéler déclenche la fin de la manche",
     ],
-    video: "https://www.youtube.com/embed/vCfR2KJvGOA",
     conseil: "Visez les colonnes identiques pour éliminer des cartes !",
   },
   {
@@ -102,7 +97,6 @@ const jeuxDetailles = [
       "Le gagnant de la manche remporte la carte phrase",
       "Premier à 5 cartes gagnées remporte la partie",
     ],
-    video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     conseil: "Adaptez vos réponses à l'humour du lecteur !",
   },
 ];
@@ -212,7 +206,7 @@ export default function GuideJeuxHotel() {
               </div>
 
               {/* Contenu du jeu */}
-              <div className="p-6 grid md:grid-cols-2 gap-8">
+              <div className="p-6">
                 {/* Règles */}
                 <div>
                   <h3 className="text-xl font-bold text-[#1a2b4a] mb-4 flex items-center gap-2">
@@ -246,31 +240,6 @@ export default function GuideJeuxHotel() {
                       💡 <strong>Astuce :</strong> {jeu.conseil}
                     </p>
                   </div>
-                </div>
-
-                {/* Vidéo */}
-                <div>
-                  <h3 className="text-xl font-bold text-[#1a2b4a] mb-4 flex items-center gap-2">
-                    <span className="bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">
-                      ▶️
-                    </span>
-                    Voir la vidéo
-                  </h3>
-                  <div
-                    className="aspect-video rounded-xl overflow-hidden shadow-lg
-                               ring-2 ring-slate-100"
-                  >
-                    <iframe
-                      className="w-full h-full"
-                      src={jeu.video}
-                      title={`Tutoriel ${jeu.nom}`}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
-                  <p className="text-sm text-slate-500 mt-3 text-center">
-                    Cliquez sur ▶️ pour regarder le tutoriel complet
-                  </p>
                 </div>
               </div>
             </article>
