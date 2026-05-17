@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect } from "react";
+
 const tousLesJeux = [
   {
     nom: "UNO",
@@ -580,6 +582,21 @@ const tousLesJeux = [
 ];
 
 export default function GuideJeuxHotel() {
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const scrollToGame = (gameName: string) => {
     const element = document.getElementById(gameName);
     if (element) {
@@ -589,6 +606,32 @@ export default function GuideJeuxHotel() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-blue-50">
+      {/* Bouton retour en haut */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-50 bg-[#1a2b4a] text-white p-4 rounded-full shadow-lg
+                   hover:bg-[#c9a227] hover:text-[#1a2b4a] transition-all duration-300
+                   flex items-center justify-center group"
+          aria-label="Retour en haut"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M5 15l7-7 7 7"
+            />
+          </svg>
+        </button>
+      )}
+
       <main className="max-w-5xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* En-tête Mercure */}
         <header className="text-center mb-12">
