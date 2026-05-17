@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const tousLesJeux = [
   {
@@ -583,6 +583,8 @@ const tousLesJeux = [
 
 export default function GuideJeuxHotel() {
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [visibleCards, setVisibleCards] = useState<Set<string>>(new Set());
+  const cardRefs = useRef<Map<string, HTMLElement>>(new Map());
 
   useEffect(() => {
     const handleScroll = () => {
@@ -591,6 +593,26 @@ export default function GuideJeuxHotel() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Intersection Observer pour les animations au scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisibleCards((prev) => new Set(prev).add(entry.target.id));
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+    );
+
+    cardRefs.current.forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => observer.disconnect();
   }, []);
 
   const scrollToTop = () => {
@@ -605,98 +627,128 @@ export default function GuideJeuxHotel() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-blue-50/30 to-slate-100">
       {/* Bouton retour en haut */}
-      {showScrollTop && (
-        <button
-          onClick={scrollToTop}
-          className="fixed bottom-6 right-6 z-50 bg-[#1a2b4a] text-white p-4 rounded-full shadow-lg
-                   hover:bg-[#c9a227] hover:text-[#1a2b4a] transition-all duration-300
-                   flex items-center justify-center group"
-          aria-label="Retour en haut"
+      <button
+        onClick={scrollToTop}
+        className={`fixed bottom-6 right-6 z-50 bg-[#1a2b4a] text-white p-4 rounded-full shadow-lg
+                 hover:bg-[#c9a227] hover:text-[#1a2b4a] transition-all duration-500
+                 flex items-center justify-center hover:scale-110 active:scale-95
+                 ${showScrollTop ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16 pointer-events-none"}`}
+        aria-label="Retour en haut"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M5 15l7-7 7 7"
-            />
-          </svg>
-        </button>
-      )}
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M5 15l7-7 7 7"
+          />
+        </svg>
+      </button>
 
       <main className="max-w-5xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        {/* En-tête Mercure */}
-        <header className="text-center mb-12">
-          <div className="inline-flex items-center justify-center gap-3 mb-4">
-            <span className="text-4xl">🎲</span>
-            <h1 className="text-4xl md:text-5xl font-bold text-[#1a2b4a]">
-              Espace Jeux
-            </h1>
-            <span className="text-4xl">🎲</span>
+        {/* En-tete Mercure */}
+        <header className="text-center mb-16 animate-fade-in-up">
+          <div className="inline-flex items-center justify-center gap-4 mb-6">
+            <span className="text-5xl animate-float">🎲</span>
+            <div>
+              <h1 className="text-5xl md:text-6xl font-bold text-[#1a2b4a] tracking-tight">
+                Espace Jeux
+              </h1>
+              <div className="h-1 w-24 bg-gradient-to-r from-[#c9a227] to-[#e8d069] mx-auto mt-3 rounded-full" />
+            </div>
+            <span className="text-5xl animate-float animation-delay-500">🎲</span>
           </div>
-          <p className="text-xl text-[#c9a227] font-semibold mb-2">
+          <p className="text-2xl text-[#c9a227] font-semibold mb-3 tracking-wide">
             Mercure Peyragudes Loudenvielle
           </p>
-          <p className="text-slate-600 max-w-2xl mx-auto">
-            Retrouvez ici les règles de tous nos jeux de société disponibles à
-            la réception !
+          <p className="text-slate-600 max-w-2xl mx-auto text-lg leading-relaxed">
+            Retrouvez ici les regles de tous nos jeux de societe disponibles a
+            la reception !
           </p>
         </header>
 
         {/* Navigation rapide */}
-        <nav className="mb-12">
-          <div className="flex flex-wrap justify-center gap-2">
-            {tousLesJeux.map((jeu) => (
-              <button
-                key={jeu.nom}
-                onClick={() => scrollToGame(jeu.nom)}
-                className="px-3 py-1.5 bg-[#1a2b4a] text-white rounded-full text-sm font-medium
-                         hover:bg-[#c9a227] hover:text-[#1a2b4a] transition-all duration-200
-                         shadow-sm hover:shadow-md active:scale-95"
-              >
-                {jeu.emoji} {jeu.nom}
-              </button>
-            ))}
+        <nav className="mb-16 animate-fade-in animation-delay-300">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-slate-200/50">
+            <h2 className="text-center text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">
+              Acces rapide aux jeux
+            </h2>
+            <div className="flex flex-wrap justify-center gap-2">
+              {tousLesJeux.map((jeu, index) => (
+                <button
+                  key={jeu.nom}
+                  onClick={() => scrollToGame(jeu.nom)}
+                  style={{ animationDelay: `${index * 20}ms` }}
+                  className="px-4 py-2 bg-gradient-to-br from-[#1a2b4a] to-[#2d4a6f] text-white rounded-full text-sm font-medium
+                           hover:from-[#c9a227] hover:to-[#e8d069] hover:text-[#1a2b4a] transition-all duration-300
+                           shadow-md hover:shadow-lg hover:scale-105 active:scale-95
+                           animate-fade-in opacity-0"
+                >
+                  <span className="mr-1">{jeu.emoji}</span> {jeu.nom}
+                </button>
+              ))}
+            </div>
           </div>
         </nav>
 
+        {/* Nombre de jeux */}
+        <div className="text-center mb-10 animate-fade-in animation-delay-400">
+          <span className="inline-flex items-center gap-2 bg-[#1a2b4a] text-white px-6 py-3 rounded-full text-lg font-semibold shadow-lg">
+            <span className="text-2xl">🎯</span>
+            {tousLesJeux.length} jeux disponibles
+          </span>
+        </div>
+
         {/* Cartes des jeux */}
-        <div className="space-y-8">
-          {tousLesJeux.map((jeu) => (
+        <div className="space-y-10">
+          {tousLesJeux.map((jeu, index) => (
             <article
               key={jeu.nom}
               id={jeu.nom}
-              className="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100
-                       scroll-mt-4 transition-shadow hover:shadow-2xl"
+              ref={(el) => {
+                if (el) cardRefs.current.set(jeu.nom, el);
+              }}
+              className={`bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100
+                       scroll-mt-6 transition-all duration-700 hover:shadow-2xl
+                       ${visibleCards.has(jeu.nom) ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+              style={{ transitionDelay: `${(index % 5) * 100}ms` }}
             >
               {/* Bandeau du jeu */}
-              <div className="bg-gradient-to-r from-[#1a2b4a] to-[#2d4a6f] text-white p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div className="flex items-center gap-4">
-                    <span className="text-5xl">{jeu.emoji}</span>
+              <div className="bg-gradient-to-r from-[#1a2b4a] via-[#243d5c] to-[#2d4a6f] text-white p-8 relative overflow-hidden">
+                {/* Decoration de fond */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#c9a227]/10 rounded-full translate-y-24 -translate-x-24" />
+                
+                <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+                  <div className="flex items-center gap-5">
+                    <span className="text-6xl drop-shadow-lg transition-transform duration-300 hover:scale-110 cursor-default">
+                      {jeu.emoji}
+                    </span>
                     <div>
-                      <h2 className="text-2xl md:text-3xl font-bold">
+                      <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
                         {jeu.nom}
                       </h2>
-                      <p className="text-blue-200 mt-1">{jeu.objectif}</p>
+                      <p className="text-blue-200/90 mt-2 text-lg max-w-md leading-relaxed">
+                        {jeu.objectif}
+                      </p>
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-2 text-sm">
-                    <span className="bg-white/20 backdrop-blur px-3 py-1 rounded-full">
-                      👥 {jeu.joueurs}
+                  <div className="flex flex-wrap gap-3">
+                    <span className="bg-white/15 backdrop-blur-sm px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 border border-white/10">
+                      <span className="text-lg">👥</span> {jeu.joueurs}
                     </span>
-                    <span className="bg-white/20 backdrop-blur px-3 py-1 rounded-full">
-                      ⏱️ {jeu.duree}
+                    <span className="bg-white/15 backdrop-blur-sm px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 border border-white/10">
+                      <span className="text-lg">⏱️</span> {jeu.duree}
                     </span>
-                    <span className="bg-[#c9a227] text-[#1a2b4a] px-3 py-1 rounded-full font-semibold">
+                    <span className="bg-gradient-to-r from-[#c9a227] to-[#e8d069] text-[#1a2b4a] px-4 py-2 rounded-xl font-bold text-sm shadow-lg">
                       {jeu.age}
                     </span>
                   </div>
@@ -704,25 +756,29 @@ export default function GuideJeuxHotel() {
               </div>
 
               {/* Contenu du jeu */}
-              <div className="p-6">
-                {/* Règles */}
+              <div className="p-8">
+                {/* Regles */}
                 <div>
-                  <h3 className="text-xl font-bold text-[#1a2b4a] mb-4 flex items-center gap-2">
-                    <span className="bg-[#1a2b4a] text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">
+                  <h3 className="text-2xl font-bold text-[#1a2b4a] mb-6 flex items-center gap-3">
+                    <span className="bg-gradient-to-br from-[#1a2b4a] to-[#2d4a6f] text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-md">
                       📖
                     </span>
                     Comment jouer ?
                   </h3>
-                  <ol className="space-y-3">
+                  <ol className="space-y-4">
                     {jeu.regles.map((regle, i) => (
-                      <li key={i} className="flex gap-3">
+                      <li 
+                        key={i} 
+                        className="flex gap-4 group"
+                      >
                         <span
-                          className="flex-shrink-0 w-7 h-7 bg-gradient-to-br from-[#c9a227] to-[#a88520] 
-                                     text-white rounded-full flex items-center justify-center text-sm font-bold shadow-sm"
+                          className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-[#c9a227] to-[#a88520] 
+                                     text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-md
+                                     group-hover:scale-110 transition-transform duration-300"
                         >
                           {i + 1}
                         </span>
-                        <span className="text-slate-700 leading-relaxed">
+                        <span className="text-slate-700 leading-relaxed text-lg pt-0.5">
                           {regle}
                         </span>
                       </li>
@@ -731,11 +787,15 @@ export default function GuideJeuxHotel() {
 
                   {/* Conseil */}
                   <div
-                    className="mt-6 bg-gradient-to-r from-[#c9a227]/10 to-[#c9a227]/5
-                               rounded-xl p-4 border border-[#c9a227]/30"
+                    className="mt-8 bg-gradient-to-r from-[#c9a227]/15 via-[#c9a227]/10 to-transparent
+                               rounded-2xl p-5 border-l-4 border-[#c9a227] shadow-sm"
                   >
-                    <p className="text-[#1a2b4a] font-medium">
-                      💡 <strong>Astuce :</strong> {jeu.conseil}
+                    <p className="text-[#1a2b4a] font-medium text-lg flex items-start gap-3">
+                      <span className="text-2xl">💡</span>
+                      <span>
+                        <strong className="text-[#c9a227]">Astuce :</strong>{" "}
+                        {jeu.conseil}
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -746,35 +806,46 @@ export default function GuideJeuxHotel() {
 
         {/* Message de fin */}
         <section
-          className="mt-16 bg-gradient-to-r from-[#1a2b4a] to-[#2d4a6f]
-                      text-white rounded-2xl p-10 shadow-xl text-center"
+          className="mt-20 bg-gradient-to-br from-[#1a2b4a] via-[#243d5c] to-[#2d4a6f]
+                      text-white rounded-3xl p-12 shadow-2xl text-center relative overflow-hidden"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Passez de bons moments en famille !
-          </h2>
-          <p className="text-lg text-blue-100 max-w-2xl mx-auto mb-6">
-            Tous ces jeux sont à votre disposition gratuitement pendant votre
-            séjour. Demandez-les à la réception et profitez de belles soirées
-            ensemble !
-          </p>
-          <div className="flex flex-wrap justify-center gap-4 text-sm">
-            <span className="bg-white/20 backdrop-blur px-5 py-2 rounded-full">
-              Gratuit pour les clients
-            </span>
-            <span className="bg-white/20 backdrop-blur px-5 py-2 rounded-full">
-              Disponible à la réception
-            </span>
-            <span className="bg-[#c9a227] text-[#1a2b4a] px-5 py-2 rounded-full font-bold">
-              Pour toute la famille
-            </span>
+          {/* Decorations */}
+          <div className="absolute top-0 left-0 w-72 h-72 bg-[#c9a227]/10 rounded-full -translate-y-36 -translate-x-36" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/5 rounded-full translate-y-48 translate-x-48" />
+          
+          <div className="relative">
+            <span className="text-6xl mb-6 block animate-float">🏔️</span>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
+              Passez de bons moments en famille !
+            </h2>
+            <p className="text-xl text-blue-100 max-w-2xl mx-auto mb-8 leading-relaxed">
+              Tous ces jeux sont a votre disposition gratuitement pendant votre
+              sejour. Demandez-les a la reception et profitez de belles soirees
+              ensemble !
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <span className="bg-white/15 backdrop-blur-sm px-6 py-3 rounded-full text-lg font-medium border border-white/10
+                             hover:bg-white/25 transition-colors duration-300 cursor-default">
+                Gratuit pour les clients
+              </span>
+              <span className="bg-white/15 backdrop-blur-sm px-6 py-3 rounded-full text-lg font-medium border border-white/10
+                             hover:bg-white/25 transition-colors duration-300 cursor-default">
+                Disponible a la reception
+              </span>
+              <span className="bg-gradient-to-r from-[#c9a227] to-[#e8d069] text-[#1a2b4a] px-6 py-3 rounded-full text-lg font-bold shadow-lg
+                             hover:scale-105 transition-transform duration-300 cursor-default">
+                Pour toute la famille
+              </span>
+            </div>
           </div>
         </section>
 
         {/* Footer */}
-        <footer className="mt-12 text-center text-slate-500 text-sm">
-          <p>Mercure Peyragudes Loudenvielle - Espace Jeux de Société</p>
-          <p className="mt-1">
-            Besoin d'un jeu ? Passez nous voir à la réception !
+        <footer className="mt-16 text-center text-slate-500 animate-fade-in">
+          <div className="h-px w-32 bg-gradient-to-r from-transparent via-slate-300 to-transparent mx-auto mb-6" />
+          <p className="font-medium">Mercure Peyragudes Loudenvielle</p>
+          <p className="mt-2 text-sm">
+            Espace Jeux de Societe - Besoin d'un jeu ? Passez nous voir a la reception !
           </p>
         </footer>
       </main>
